@@ -43,4 +43,11 @@ public class TaskController {
     public List<Task> allTasks() {
         return taskService.allTasks();
     }
+
+    //http api request - additional task #1
+    @GetMapping("/sendApiRequest")
+    public ResponseEntity<?> createApiRequest() {
+        return taskService.sendApiRequest();
+    }
+
 }

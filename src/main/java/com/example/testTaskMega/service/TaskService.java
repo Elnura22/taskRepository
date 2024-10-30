@@ -20,4 +20,6 @@ public interface TaskService {
     ResponseEntity<StatusResponse> deleteTask(UUID id);
 
     List<Task> allTasks();
+
+    ResponseEntity<?> sendApiRequest();
 }

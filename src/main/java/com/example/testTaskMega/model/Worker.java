@@ -5,7 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import java.util.UUID;
 
 @Data
@@ -19,4 +20,5 @@ public class Worker {
     private UUID id;
     private String name;
     private String email;
+    private String password;
 }
