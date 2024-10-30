@@ -1,7 +1,6 @@
 package com.example.testTaskMega.controller;
 
 import com.example.testTaskMega.bean.CreateWorkerRequest;
-import com.example.testTaskMega.bean.StatusResponse;
 import com.example.testTaskMega.model.Worker;
 import com.example.testTaskMega.service.WorkerService;
 import org.springframework.beans.factory.annotation.Autowired;

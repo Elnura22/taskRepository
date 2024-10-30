@@ -1,7 +1,6 @@
 package com.example.testTaskMega.bean;
 
 import com.example.testTaskMega.model.Priority;
-import com.example.testTaskMega.model.Worker;
 import lombok.*;
 
 import java.util.UUID;

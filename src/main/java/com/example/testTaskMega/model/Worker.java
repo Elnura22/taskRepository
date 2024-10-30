@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @jakarta.persistence.Entity
-@Table(name = "workers")
 public class Worker {
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.AUTO)
