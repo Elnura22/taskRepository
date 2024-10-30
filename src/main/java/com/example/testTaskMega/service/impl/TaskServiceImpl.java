@@ -28,8 +28,10 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private WorkerRepository workerRepository;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
+    @Autowired
+    private MailService mailService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
 
     @Value("${api.url}")
     private String API_URL;
@@ -56,6 +58,7 @@ public class TaskServiceImpl implements TaskService {
                     .priority(request.getPriority())
                     .build();
             taskRepository.save(task);
+            mailService.sendEmail("elnura.amantur@gmail.com", "You have new task", "Task: " + task);
             LOGGER.info("Task created: {}", task);
             return new ResponseEntity<>(StatusResponse.builder().code(200).message("Task created successfully").build(), HttpStatus.OK);
         } catch (Exception e) {
@@ -96,7 +99,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<Task> allTasks() {
-        List<Task> taskList =  taskRepository.findAll();
+        List<Task> taskList = taskRepository.findAll();
         LOGGER.info("allTasks: {}", taskList);
         return taskList;
     }
