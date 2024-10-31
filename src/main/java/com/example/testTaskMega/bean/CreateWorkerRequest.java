@@ -1,15 +1,13 @@
 package com.example.testTaskMega.bean;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CreateWorkerRequest {
+    @NonNull
     private String name;
     private String email;
     private String password;

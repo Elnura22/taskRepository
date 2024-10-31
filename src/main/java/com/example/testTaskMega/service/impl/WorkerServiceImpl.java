@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,16 +24,15 @@ public class WorkerServiceImpl implements WorkerService {
     @Override
     public Worker getWorkerById(UUID id) {
         LOGGER.info("getWorkerById: {}", id);
-        Worker worker = null;
         try {
-            worker = workerRepository.findById(id).orElseThrow();
+            Optional<Worker> workerOptional = workerRepository.findById(id);
+            Worker worker = workerOptional.get();
             LOGGER.info("Worker found: {}", worker);
             return worker;
-        }catch (Exception e){
-            LOGGER.error("Worker not found: {}", id);
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("error, can not find worker with this id: {}", id, e);
+            throw e;
         }
-        return worker;
     }
 
     @Override

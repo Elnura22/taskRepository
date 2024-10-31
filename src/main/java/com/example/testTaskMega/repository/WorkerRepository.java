@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface WorkerRepository extends JpaRepository<Worker, UUID> {
 
     Optional<Worker> findById(UUID id);
+
+
 }

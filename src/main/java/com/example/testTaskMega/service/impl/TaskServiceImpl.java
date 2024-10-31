@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @CacheConfig(cacheNames = "tasksCache")
@@ -51,16 +52,22 @@ public class TaskServiceImpl implements TaskService {
     public ResponseEntity<?> createTask(InfoTaskRequest request) {
         LOGGER.info("createTask: {}", request);
         try {
-            Worker assignee = workerRepository.findById(request.getAssigneeId()).orElseThrow();
-            Worker creator = workerRepository.findById(request.getCreatorId()).orElseThrow();
+            Optional<Worker> assignee = workerRepository.findById(request.getAssigneeId());
+            if (assignee.isEmpty()) {
+                return new ResponseEntity<>(StatusResponse.builder().code(404).message("Assignee not found, try again").build(), HttpStatus.OK);
+            }
+            Optional<Worker> creator = workerRepository.findById(request.getCreatorId());
+            if (creator.isEmpty()) {
+                return new ResponseEntity<>(StatusResponse.builder().code(404).message("Creator not found, try again").build(), HttpStatus.OK);
+            }
             Task task = Task.builder()
                     .id(UUID.randomUUID())
                     .title(request.getTitle())
                     .description(request.getDescription())
                     .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                     .updatedAt(null)
-                    .assignee(assignee)
-                    .creator(creator)
+                    .assignee(assignee.get())
+                    .creator(creator.get())
                     .priority(request.getPriority())
                     .build();
             taskRepository.save(task);
@@ -76,32 +83,39 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public ResponseEntity<StatusResponse> updateTask(UUID id, InfoTaskRequest request) {
         LOGGER.info("updateTask: {}", request);
-        Task task = getTaskById(id);
-        Worker assignee = workerRepository.findById(request.getAssigneeId()).orElse(null);
-        if (task != null) {
-            task.setTitle(request.getTitle());
-            task.setDescription(request.getDescription());
-            task.setAssignee(assignee);
-            task.setPriority(request.getPriority());
-            task.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-            taskRepository.save(task);
-            LOGGER.info("Task updated: {}", task);
-            return new ResponseEntity<>(StatusResponse.builder().code(200).message("Task updated successfully").build(), HttpStatus.OK);
+        Optional<Task> taskOptional = taskRepository.findById(id);
+        Optional<Worker> assignee = workerRepository.findById(request.getAssigneeId());
+        if (assignee.isEmpty()) {
+            return new ResponseEntity<>(StatusResponse.builder().code(404).message("Assignee not found, try again").build(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(StatusResponse.builder().code(400).message("Task not found").build(), HttpStatus.OK);
+        if (taskOptional.isEmpty()) {
+            return new ResponseEntity<>(StatusResponse.builder().code(404).message("Task not found, try again").build(), HttpStatus.OK);
+        }
+        Task task = taskOptional.get();
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setAssignee(assignee.get());
+        task.setPriority(request.getPriority());
+        task.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        taskRepository.save(task);
+        LOGGER.info("Task updated: {}", task);
+        return new ResponseEntity<>(StatusResponse.builder().code(200).message("Task updated successfully").build(), HttpStatus.OK);
     }
+
 
     @CacheEvict(cacheNames = "tasksCache", allEntries = true)
     @Override
     public ResponseEntity<StatusResponse> deleteTask(UUID id) {
         LOGGER.info("deleteTask: {}", id);
-        Task task = getTaskById(id);
-        if (task != null) {
-            taskRepository.delete(task);
-            LOGGER.info("Task deleted: {}", task);
-            return new ResponseEntity<>(StatusResponse.builder().code(200).message("Task deleted successfuly").build(), HttpStatus.OK);
+        Optional<Task> taskOptional = taskRepository.findById(id);
+        if (taskOptional.isEmpty()) {
+            return new ResponseEntity<>(StatusResponse.builder().code(404).message("Task not found, try again").build(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(StatusResponse.builder().code(400).message("Task not found").build(), HttpStatus.OK);
+        Task task = taskOptional.get();
+        taskRepository.delete(task);
+        LOGGER.info("Task deleted: {}", task);
+        return new ResponseEntity<>(StatusResponse.builder().code(200).message("Task deleted successfuly").build(), HttpStatus.OK);
+
     }
 
 
