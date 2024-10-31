@@ -12,15 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@CacheConfig(cacheNames = "tasksCache")
 @Service
 public class TaskServiceImpl implements TaskService {
     @Autowired
@@ -41,6 +46,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findById(id).orElseThrow();
     }
 
+    @CacheEvict(cacheNames = "tasksCache", allEntries = true)
     @Override
     public ResponseEntity<?> createTask(InfoTaskRequest request) {
         LOGGER.info("createTask: {}", request);
@@ -51,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
                     .id(UUID.randomUUID())
                     .title(request.getTitle())
                     .description(request.getDescription())
-                    .createdAt(LocalDateTime.now())
+                    .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                     .updatedAt(null)
                     .assignee(assignee)
                     .creator(creator)
@@ -77,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
             task.setDescription(request.getDescription());
             task.setAssignee(assignee);
             task.setPriority(request.getPriority());
-            task.setUpdatedAt(LocalDateTime.now());
+            task.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             taskRepository.save(task);
             LOGGER.info("Task updated: {}", task);
             return new ResponseEntity<>(StatusResponse.builder().code(200).message("Task updated successfully").build(), HttpStatus.OK);
@@ -85,6 +91,7 @@ public class TaskServiceImpl implements TaskService {
         return new ResponseEntity<>(StatusResponse.builder().code(400).message("Task not found").build(), HttpStatus.OK);
     }
 
+    @CacheEvict(cacheNames = "tasksCache", allEntries = true)
     @Override
     public ResponseEntity<StatusResponse> deleteTask(UUID id) {
         LOGGER.info("deleteTask: {}", id);
@@ -97,11 +104,24 @@ public class TaskServiceImpl implements TaskService {
         return new ResponseEntity<>(StatusResponse.builder().code(400).message("Task not found").build(), HttpStatus.OK);
     }
 
+
+    @Cacheable(cacheNames = "tasksСache")
     @Override
     public List<Task> allTasks() {
+        waitSomeTime();
         List<Task> taskList = taskRepository.findAll();
         LOGGER.info("allTasks: {}", taskList);
         return taskList;
+    }
+
+    private void waitSomeTime() {
+        System.out.println("Long Wait Begin");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Long Wait End");
     }
 
     @Override

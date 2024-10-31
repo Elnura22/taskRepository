@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,9 +20,9 @@ public class Task {
     private UUID id;
     private String title;
     private String description;
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
     @Nullable
-    private LocalDateTime updatedAt;
+    private Timestamp updatedAt;
     @jakarta.persistence.ManyToOne
     @jakarta.persistence.JoinColumn(name = "assignee_id")
     private Worker assignee;

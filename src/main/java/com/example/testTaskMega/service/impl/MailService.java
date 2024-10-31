@@ -1,12 +1,9 @@
 package com.example.testTaskMega.service.impl;
 
-import com.example.testTaskMega.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class MailService {
