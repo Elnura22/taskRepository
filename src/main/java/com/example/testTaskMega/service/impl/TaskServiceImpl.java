@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -51,6 +53,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public ResponseEntity<?> createTask(InfoTaskRequest request) {
         LOGGER.info("createTask: {}", request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         try {
             Optional<Worker> assignee = workerRepository.findById(request.getAssigneeId());
             if (assignee.isEmpty()) {
@@ -71,7 +75,7 @@ public class TaskServiceImpl implements TaskService {
                     .priority(request.getPriority())
                     .build();
             taskRepository.save(task);
-            mailService.sendEmail("elnura.amantur@gmail.com", "You have new task", "Task: " + task);
+            mailService.sendEmail(assignee.get().getEmail(), "You have new task", "Task: " + task);
             LOGGER.info("Task created: {}", task);
             return new ResponseEntity<>(StatusResponse.builder().code(200).message("Task created successfully").build(), HttpStatus.OK);
         } catch (Exception e) {
