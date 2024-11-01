@@ -38,7 +38,7 @@ public class WorkerServiceTest {
     public void setUp() {
         request = new CreateWorkerRequest();
         request.setEmail("wlyaeth.mn@gmail.com");
-        request.setPassword("kfabfauljuxgxggi");
+        request.setPassword("password");
         request.setName("elnura");
 
         worker = new Worker();
